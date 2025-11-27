@@ -1,301 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <title>Product Price Comparison</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      margin: 20px;
-      padding: 0;
-      background: #f9f9f9;
-    }
-    h2 {
-      font-size: 1.5rem;
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    .description {
-      font-size: 0.95rem;
-      color: #333;
-      text-align: center;
-      margin-bottom: 20px;
-      padding: 0 10px;
-    }
-    .search-container {
-      position: relative;
-      width: 100%;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      box-sizing: border-box;
-    }
-    .btn-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 6px;
-      background: #0078d7;
-      color: #fff;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #005fa3;
-    }
-    ul.suggestions {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      position: absolute;
-      width: 100%;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      max-height: 200px;
-      overflow-y: auto;
-      z-index: 1000;
-    }
-    ul.suggestions li {
-      padding: 10px;
-      font-size: 0.95rem;
-      cursor: pointer;
-    }
-    ul.suggestions li:hover {
-      background: #f0f0f0;
-    }
-    #reader {
-      margin: 16px auto;
-      width: 320px;
-      max-width: 100%;
-      display: none; /* hidden until scanner starts */
-    }
-    .status {
-      text-align: center;
-      font-size: 0.9rem;
-      color: #555;
-      min-height: 1.2em;
-      margin-top: 6px;
-    }
-    @media (min-width: 600px) {
-      body {
-        max-width: 560px;
-        margin: 40px auto;
-      }
-      .btn-row {
-        grid-template-columns: auto auto;
-        justify-content: center;
-      }
-      button {
-        width: auto;
-        padding: 10px 16px;
-      }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#F8FAFC">
+  <title>PriceFinder</title>
+  <meta name="description" content="Find the best prices instantly.">
+  <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-  <h2>Product Price Comparison</h2>
-  <p class="description">
-    Compare product prices across major stores. Type a name or scan a barcode to search.
-  </p>
 
-  <div class="search-container">
-    <input id="queryInput" placeholder="Type a product name or scan barcode...">
-    <ul id="suggestions" class="suggestions"></ul>
+  <div class="container">
+
+    <div class="logo-container">
+      <!-- Custom SVG Logo -->
+      <svg class="app-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2563EB" />
+            <stop offset="100%" stop-color="#7C3AED" />
+          </linearGradient>
+        </defs>
+        <rect x="20" y="20" width="60" height="60" rx="16" fill="url(#logoGradient)" opacity="0.1" />
+        <path d="M35 35 L65 35 L65 65 L35 65 Z" stroke="url(#logoGradient)" stroke-width="6" stroke-linecap="round"
+          stroke-linejoin="round" />
+        <path d="M42 50 L58 50 M42 58 L52 58" stroke="url(#logoGradient)" stroke-width="4" stroke-linecap="round" />
+        <circle cx="75" cy="75" r="18" fill="white" stroke="url(#logoGradient)" stroke-width="4" />
+        <path d="M70 75 L80 75 M75 70 L75 80" stroke="url(#logoGradient)" stroke-width="3" stroke-linecap="round" />
+      </svg>
+
+      <h1 class="app-name">PriceFinder</h1>
+      <p class="tagline">Scan. Search. Save.</p>
+    </div>
+
+    <div class="search-wrapper">
+      <div class="search-container">
+        <input id="queryInput" type="text" placeholder="What are you looking for?" autocomplete="off">
+        <svg class="search-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+          viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <ul id="suggestions" class="suggestions"></ul>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button id="searchBtn">
+        Find Best Price
+      </button>
+      <button id="startScanner">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
+          </path>
+        </svg>
+        Scan Barcode
+      </button>
+    </div>
+
+    <div id="reader"></div>
+    <div class="status" id="statusMsg"></div>
   </div>
 
-  <div class="btn-row">
-    <button id="searchBtn">Search</button>
-    <button id="startScanner">📷 Scan Barcode</button>
+  <div class="footer-note">
+    Powered by Google AI Search
   </div>
-
-  <div id="reader"></div>
-  <div class="status" id="statusMsg"></div>
 
   <!-- Barcode scanner library -->
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-  <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
-
-  <script>
-    const input = document.getElementById('queryInput');
-    const searchBtn = document.getElementById('searchBtn');
-    const suggestionsList = document.getElementById('suggestions');
-    const startScannerBtn = document.getElementById('startScanner');
-    const readerDiv = document.getElementById('reader');
-    const statusMsg = document.getElementById('statusMsg');
-
-    // Fixed Google parameters (as in your original)
-    const fixedParams = "&sca_esv=7cb5a2c0938f91b5&sxsrf=AE3TifMKO41YI5Cr3emYEt-erq7Jkz15_A%3A1764197479425&source=hp&ei=Z4QnadqbGK2t5NoP3Luq0Qw&iflsig=AOw8s4IAAAAAaSeSd2rrT1IRe8m-7rZhV8gPOfgpArHC&aep=22&udm=50&ved=0ahUKEwia68rg85CRAxWtFlkFHdydKsoQteYPCCU&oq=&gs_lp=Egdnd3Mtd2l6IgBIAFAAWABwAHgAkAEAmAEAoAEAqgEAuAEByAEAmAIAoAIAmAMAkgcAoAcAsgcAuAcAwgcAyAcA&sclient=gws-wiz";
-
-    // Hidden instruction payload
-    const breaks = "\n".repeat(6);
-    const hiddenInstructionText =
-      "%0A%0A%0A%0A%0A%0A" + // six line breaks
-      "Return ONLY a clean, structured table. " +
-      "Search for the current prices of the specified item across multiple stores (Amazon, CVS Pharmacy, Safeway, Target, Walmart). " +
-      "Provide a direct buy link to the product at each store. " +
-      "Ensure all products shown are of the same size/volume/weight (e.g., 12oz, 1L, 500g) so they can be compared fairly. " +
-      "Sort results by price, cheapest first. " +
-      "Table columns: Product Name | Store | Price ($) | Buy Now. " +
-      "No preambles, explanations, or extra text—just the table.";
-
-
-    function buildQuery() {
-      const userText = input.value.trim();
-      if (!userText) return null;
-      const fullQuery = encodeURIComponent(userText) + hiddenInstructionText;
-      return fullQuery;
-    }
-
-
-    function doSearch() {
-      const encodedQuery = buildQuery();
-      if (!encodedQuery) return;
-      const url = "https://www.google.com/search?q=" + encodedQuery + fixedParams;
-      
-      // clear the text field after redirect
-      input.value = "";
-      window.location.href = url;
-    }
-
-    searchBtn.addEventListener('click', doSearch);
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        doSearch();
-      }
-    });
-
-    // Google Suggest via JSONP
-    function fetchGoogleSuggestions(query, callback) {
-      const script = document.createElement('script');
-      const callbackName = 'handleSuggestions_' + Math.random().toString(36).slice(2);
-
-      window[callbackName] = function(data) {
-        callback(data[1]);
-        delete window[callbackName];
-        if (script && script.parentNode) script.parentNode.removeChild(script);
-      };
-
-      const url = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}&callback=${callbackName}`;
-      script.src = url;
-      document.body.appendChild(script);
-    }
-
-    input.addEventListener('input', () => {
-      const query = input.value.trim();
-      suggestionsList.innerHTML = '';
-      if (query.length > 0) {
-        fetchGoogleSuggestions(query, function(suggestions) {
-          suggestions.forEach(s => {
-            const li = document.createElement('li');
-            li.textContent = s;
-            li.addEventListener('click', () => {
-              input.value = s;
-              suggestionsList.innerHTML = '';
-            });
-            suggestionsList.appendChild(li);
-          });
-        });
-      }
-    });
-
-    // Barcode scanner integration (robust)
-    let html5QrCode = null;
-    let scannerRunning = false;
-
-    function startScanner() {
-  if (scannerRunning) return;
-  statusMsg.textContent = "Starting camera…";
-  readerDiv.style.display = 'block';
-
-  try {
-    html5QrCode = new Html5Qrcode("reader");
-  } catch (e) {
-    statusMsg.textContent = "Scanner init failed: " + e;
-    return;
-  }
-
-  html5QrCode.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: 250 },
-         async (decodedText) => {
-      const upcQuery = "Product UPC code: " + decodedText;
-      input.value = upcQuery;
-      statusMsg.textContent = "Barcode detected: " + decodedText;
-    
-      try {
-        await html5QrCode.stop();
-        html5QrCode.clear();
-        scannerRunning = false;
-        readerDiv.style.display = 'none';
-        statusMsg.textContent = "";
-    
-        // clear before redirect
-        const temp = input.value;
-        input.value = "";
-        doSearch();
-    
-      } catch (err) {
-        statusMsg.textContent = "Error stopping scanner: " + err;
-      }
-    },
-    (errorMessage) => {
-      // Ignore minor scan errors
-    }
-  ).then(() => {
-    scannerRunning = true;
-    statusMsg.textContent = "Camera active. Point at a barcode.";
-  }).catch(err => {
-    scannerRunning = false;
-    readerDiv.style.display = 'none';
-    statusMsg.textContent = "Camera start failed: " + err;
-  });
-}
-
-
-    function stopScanner() {
-      if (!html5QrCode || !scannerRunning) {
-        readerDiv.style.display = 'none';
-        statusMsg.textContent = "";
-        return Promise.resolve();
-      }
-      return html5QrCode.stop().then(() => {
-        html5QrCode.clear();
-        scannerRunning = false;
-        readerDiv.style.display = 'none';
-        statusMsg.textContent = "";
-      }).catch(err => {
-        scannerRunning = false;
-        readerDiv.style.display = 'none';
-        statusMsg.textContent = "Stop failed: " + err;
-      });
-    }
-
-    startScannerBtn.addEventListener('click', startScanner);
-
-    // Optional: ESC to stop scanner
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        stopScanner();
-      }
-    });
-  </script>
+  <!-- App Logic -->
+  <script src="js/script.js"></script>
 </body>
+
 </html>
-
-
-
-
-
