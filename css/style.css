@@ -52,20 +52,6 @@ body {
     width: 80px;
     height: 80px;
     margin-bottom: 16px;
-    filter: drop-shadow(0 10px 15px rgba(37, 99, 235, 0.2));
-}
-
-.app-name {
-    font-size: 2rem;
-    font-weight: 800;
-    background: var(--primary-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: -0.02em;
-    margin: 0;
-}
-
-.tagline {
     font-size: 1rem;
     color: var(--text-secondary);
     margin-top: 8px;
