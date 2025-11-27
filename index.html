@@ -150,11 +150,13 @@
       "No preambles, explanations, or extra text—just the table. ";
 
     function buildQuery() {
-      const userText = input.value.trim();
-      if (!userText) return null;
-      const fullQuery = `${userText}${breaks}${hiddenInstructionText}`;
-      return encodeURIComponent(fullQuery).replace(/%20/g, '+');
-    }
+  const userText = input.value.trim();
+  if (!userText) return null;
+
+  const fullQuery = `${userText} ${hiddenInstructionText}`; // remove breaks
+  return encodeURIComponent(fullQuery);
+}
+
 
     function doSearch() {
       const encodedQuery = buildQuery();
@@ -284,3 +286,4 @@
   </script>
 </body>
 </html>
+
