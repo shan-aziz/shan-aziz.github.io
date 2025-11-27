@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const readerDiv = document.getElementById('reader');
     const statusMsg = document.getElementById('statusMsg');
 
+
+    //test
     // Fixed Google parameters
     const fixedParams = "&sca_esv=7cb5a2c0938f91b5&sxsrf=AE3TifMKO41YI5Cr3emYEt-erq7Jkz15_A%3A1764197479425&source=hp&ei=Z4QnadqbGK2t5NoP3Luq0Qw&iflsig=AOw8s4IAAAAAaSeSd2rrT1IRe8m-7rZhV8gPOfgpArHC&aep=22&udm=50&ved=0ahUKEwia68rg85CRAxWtFlkFHdydKsoQteYPCCU&oq=&gs_lp=Egdnd3Mtd2l6IgBIAFAAWABwAHgAkAEAmAEAoAEAqgEAuAEByAEAmAIAoAIAmAMAkgcAoAcAsgcAuAcAwgcAyAcA&sclient=gws-wiz";
 
