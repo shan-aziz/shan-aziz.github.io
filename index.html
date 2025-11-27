@@ -164,6 +164,8 @@
       if (!encodedQuery) return;
       const url = "https://www.google.com/search?q=" + encodedQuery + fixedParams;
       window.location.href = url;
+      // clear the text field after redirect
+      input.value = "";
     }
 
     searchBtn.addEventListener('click', doSearch);
@@ -227,23 +229,25 @@
   html5QrCode.start(
     { facingMode: "environment" },
     { fps: 10, qrbox: 250 },
-    async (decodedText) => {
-  // prepend the label before putting into the input
-  const upcQuery = "Product UPC code: " + decodedText;
-  input.value = upcQuery;
-  statusMsg.textContent = "Barcode detected: " + decodedText;
-
-  try {
-    await html5QrCode.stop();
-    html5QrCode.clear();
-    scannerRunning = false;
-    readerDiv.style.display = 'none';
-    statusMsg.textContent = "";
-    doSearch(); // 🔥 auto-trigger search with UPC query
-  } catch (err) {
-    statusMsg.textContent = "Error stopping scanner: " + err;
-  }
-},
+     async (decodedText) => {
+    const upcQuery = "Product UPC code: " + decodedText;
+    input.value = upcQuery;
+    statusMsg.textContent = "Barcode detected: " + decodedText;
+  
+    try {
+      await html5QrCode.stop();
+      html5QrCode.clear();
+      scannerRunning = false;
+      readerDiv.style.display = 'none';
+      statusMsg.textContent = "";
+      doSearch(); // auto-search
+  
+      // clear the text field after search
+      input.value = "";
+    } catch (err) {
+      statusMsg.textContent = "Error stopping scanner: " + err;
+    }
+  },
     (errorMessage) => {
       // Ignore minor scan errors
     }
@@ -287,6 +291,7 @@
   </script>
 </body>
 </html>
+
 
 
 
