@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Product Price Comparison</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 20px;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    h2 {
+      font-size: 1.5rem;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .description {
+      font-size: 0.95rem;
+      color: #333;
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 0 10px;
+    }
+    .search-container {
+      position: relative;
+      width: 100%;
+    }
+    input {
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    .btn-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 6px;
+      background: #0078d7;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+    ul.suggestions {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      position: absolute;
+      width: 100%;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+    ul.suggestions li {
+      padding: 10px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    ul.suggestions li:hover {
+      background: #f0f0f0;
+    }
+    #reader {
+      margin: 16px auto;
+      width: 100%;
+      height: 60vh; /* full height on mobile */
+      max-width: 100%;
+      display: none; /* hidden until scanner starts */
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      background: #000;
+    }
+    .status {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #555;
+      min-height: 1.2em;
+      margin-top: 6px;
+    }
+    @media (min-width: 600px) {
+      body {
+        max-width: 560px;
+        margin: 40px auto;
+      }
+      .btn-row {
+        flex-direction: row;
+        justify-content: center;
+      }
+      button {
+        width: auto;
+        padding: 10px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>Product Price Comparison</h2>
+  <p class="description">
+    Compare product prices across major stores. Type a name or scan a barcode to search.
+  </p>
+
+  <div class="search-container">
+    <input id="queryInput" placeholder="Type a product name or scan barcode...">
+    <ul id="suggestions" class="suggestions"></ul>
+  </div>
+
+  <div class="btn-row">
+    <button id="searchBtn">Search</button>
+    <button id="startScanner">📷 Scan Barcode</button>
+  </div>
+
+  <div id="reader"></div>
+  <div class="status" id="statusMsg"></div>
+
+  <!-- Barcode scanner library -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <script>
+    const input = document.getElementById('queryInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const suggestionsList = document.getElementById('suggestions');
+    const startScannerBtn = document.getElementById('startScanner');
+    const readerDiv = document.getElementById('reader');
+    const statusMsg = document.getElementById('statusMsg');
+
+    // Build query
+    function buildQuery() {
+      const userText = input.value.trim();
+      if (!userText) return null;
+      return encodeURIComponent(userText).replace(/%20/g, '+');
+    }
+
+    function doSearch() {
+      const encodedQuery = buildQuery();
+      if (!encodedQuery) return;
+      const url = "https://www.google.com/search?q=" + encodedQuery;
+      window.location.href = url;
+    }
+
+    searchBtn.addEventListener('click', doSearch);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        doSearch();
+      }
+    });
+
+    // Suggestions
+    function fetchGoogleSuggestions(query, callback) {
+      const script = document.createElement('script');
+      const callbackName = 'handleSuggestions_' + Math.random().toString(36).slice(2);
+
+      window[callbackName] = function(data) {
+        callback(data[1]);
+        delete window[callbackName];
+        if (script && script.parentNode) script.parentNode.removeChild(script);
+      };
+
+      const url = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}&callback=${callbackName}`;
+      script.src = url;
+      document.body.appendChild(script);
+    }
+
+    input.addEventListener('input', () => {
+      const query = input.value.trim();
+      suggestionsList.innerHTML = '';
+      if (query.length > 0) {
+        fetchGoogleSuggestions(query, function(suggestions) {
+          suggestions.forEach(s => {
+            const li = document.createElement('li');
+            li.textContent = s;
+            li.addEventListener('click', () => {
+              input.value = s;
+              suggestionsList.innerHTML = '';
+            });
+            suggestionsList.appendChild(li);
+          });
+        });
+      }
+    });
+
+    // Barcode scanner
+    let html5QrCode = null;
+    let scannerRunning = false;
+
+    function startScanner() {
+      if (scannerRunning) return;
+      statusMsg.textContent = "Starting camera…";
+      readerDiv.style.display = 'block';
+
+      try {
+        html5QrCode = new Html5Qrcode("reader");
+      } catch (e) {
+        statusMsg.textContent = "Scanner init failed: " + e;
+        return;
+      }
+
+      html5QrCode.start(
+        { facingMode: "environment" }, // rear camera
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        async (decodedText) => {
+          const upcQuery = "Product UPC code: " + decodedText;
+          input.value = upcQuery;
+          statusMsg.textContent = "Barcode detected: " + decodedText;
+
+          try {
+            await html5QrCode.stop();
+            html5QrCode.clear();
+            scannerRunning = false;
+            readerDiv.style.display = 'none';
+            statusMsg.textContent = "";
+            doSearch(); // auto-search
+          } catch (err) {
+            statusMsg.textContent = "Error stopping scanner: " + err;
+          }
+        },
+        (errorMessage) => {
+          // ignore minor scan errors
+        }
+      ).then(() => {
+        scannerRunning = true;
+        statusMsg.textContent = "Camera active. Point at a barcode.";
+      }).catch(err => {
+        scannerRunning = false;
+        readerDiv.style.display = 'none';
+        statusMsg.textContent = "Camera start failed: " + err;
+      });
+    }
+
+    function stopScanner() {
+      if (!html5QrCode || !scannerRunning) {
+        readerDiv.style.display = 'none';
+        statusMsg.textContent = "";
+        return Promise.resolve();
+      }
+      return html5QrCode.stop().then(() => {
+        html5QrCode.clear();
+        scannerRunning = false;
+        readerDiv.style.display = 'none';
+        statusMsg.textContent = "";
+      }).catch(err => {
+        scannerRunning = false;
+        readerDiv.style.display = 'none';
+        statusMsg.textContent = "Stop failed: " + err;
+      });
+    }
+
+    startScannerBtn.addEventListener('click', startScanner);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        stopScanner();
+      }
+    });
+  </script>
+</body>
+</html>
