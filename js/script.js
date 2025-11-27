@@ -3,11 +3,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchBtn = document.getElementById('searchBtn');
     const suggestionsList = document.getElementById('suggestions');
     const startScannerBtn = document.getElementById('startScanner');
-    const readerDiv = document.getElementById('reader');
     const statusMsg = document.getElementById('statusMsg');
 
+    // Scanner overlay elements
+    const scannerOverlay = document.getElementById('scannerOverlay');
+    const closeScannerBtn = document.getElementById('closeScannerBtn');
 
-    //test
     // Fixed Google parameters
     const fixedParams = "&sca_esv=7cb5a2c0938f91b5&sxsrf=AE3TifMKO41YI5Cr3emYEt-erq7Jkz15_A%3A1764197479425&source=hp&ei=Z4QnadqbGK2t5NoP3Luq0Qw&iflsig=AOw8s4IAAAAAaSeSd2rrT1IRe8m-7rZhV8gPOfgpArHC&aep=22&udm=50&ved=0ahUKEwia68rg85CRAxWtFlkFHdydKsoQteYPCCU&oq=&gs_lp=Egdnd3Mtd2l6IgBIAFAAWABwAHgAkAEAmAEAoAEAqgEAuAEByAEAmAIAoAIAmAMAkgcAoAcAsgcAuAcAwgcAyAcA&sclient=gws-wiz";
 
@@ -96,12 +97,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function startScanner() {
         if (scannerRunning) return;
         statusMsg.textContent = "Starting camera…";
-        readerDiv.style.display = 'block';
+        if (scannerOverlay) scannerOverlay.style.display = 'flex';
 
         try {
             html5QrCode = new Html5Qrcode("reader");
         } catch (e) {
             statusMsg.textContent = "Scanner init failed: " + e;
+            if (scannerOverlay) scannerOverlay.style.display = 'none';
             return;
         }
 
@@ -117,14 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 doSearch();
 
                 // Attempt to stop scanner in background
-                html5QrCode.stop().then(() => {
-                    html5QrCode.clear();
-                    scannerRunning = false;
-                    readerDiv.style.display = 'none';
-                    statusMsg.textContent = "";
-                }).catch(err => {
-                    console.log("Scanner stop error (ignored):", err);
-                });
+                stopScanner();
             },
             (errorMessage) => {
                 // Ignore minor scan errors
@@ -134,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
             statusMsg.textContent = "Camera active. Point at a barcode.";
         }).catch(err => {
             scannerRunning = false;
-            readerDiv.style.display = 'none';
+            if (scannerOverlay) scannerOverlay.style.display = 'none';
             statusMsg.textContent = "Camera start failed: " + err;
         });
     }
@@ -142,24 +137,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function stopScanner() {
         if (!html5QrCode || !scannerRunning) {
-            readerDiv.style.display = 'none';
+            if (scannerOverlay) scannerOverlay.style.display = 'none';
             statusMsg.textContent = "";
             return Promise.resolve();
         }
         return html5QrCode.stop().then(() => {
             html5QrCode.clear();
             scannerRunning = false;
-            readerDiv.style.display = 'none';
+            if (scannerOverlay) scannerOverlay.style.display = 'none';
             statusMsg.textContent = "";
         }).catch(err => {
             scannerRunning = false;
-            readerDiv.style.display = 'none';
+            if (scannerOverlay) scannerOverlay.style.display = 'none';
             statusMsg.textContent = "Stop failed: " + err;
         });
     }
 
     if (startScannerBtn) {
         startScannerBtn.addEventListener('click', startScanner);
+    }
+
+    if (closeScannerBtn) {
+        closeScannerBtn.addEventListener('click', stopScanner);
     }
 
     // Optional: ESC to stop scanner
