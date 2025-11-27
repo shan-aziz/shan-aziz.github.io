@@ -141,22 +141,22 @@
     // Hidden instruction payload
     const breaks = "\n".repeat(6);
     const hiddenInstructionText =
-      breaks +
+      "%0A%0A%0A%0A%0A%0A" + // six line breaks
       "Return ONLY a clean, structured table. " +
       "Search for the current prices of the specified item across multiple stores (Amazon, CVS Pharmacy, Safeway, Target, Walmart). " +
       "Provide a direct buy link to the product at each store. " +
       "Ensure all products shown are of the same size/volume/weight (e.g., 12oz, 1L, 500g) so they can be compared fairly. " +
       "Sort results by price, cheapest first. " +
       "Table columns: Product Name | Store | Price ($) | Buy Now. " +
-      "No preambles, explanations, or extra text—just the table. ";
+      "No preambles, explanations, or extra text—just the table.";
+
 
     function buildQuery() {
-  const userText = input.value.trim();
-  if (!userText) return null;
-
-  const fullQuery = `${userText} ${hiddenInstructionText}`; // remove breaks
-  return encodeURIComponent(fullQuery);
-}
+      const userText = input.value.trim();
+      if (!userText) return null;
+      const fullQuery = encodeURIComponent(userText) + hiddenInstructionText;
+      return fullQuery;
+    }
 
 
     function doSearch() {
@@ -287,5 +287,6 @@
   </script>
 </body>
 </html>
+
 
 
