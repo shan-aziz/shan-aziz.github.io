@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const suggestionsList = document.getElementById('suggestions');
     const startScannerBtn = document.getElementById('startScanner');
     const statusMsg = document.getElementById('statusMsg');
-
+    //test
     // Scanner overlay elements
     const scannerOverlay = document.getElementById('scannerOverlay');
     const closeScannerBtn = document.getElementById('closeScannerBtn');
